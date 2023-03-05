@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  mosquitto:
+    image: mosquitto
+    build: 
+      context: ..
+      dockerfile: docker/mosquitto/Dockerfile
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+    environment:
+      BACKEND_AUTH_URL: http://mock:80/auth
+  mock:
+    image: mock
+    build: 
+      context: mock
+      dockerfile: Dockerfile
+    volumes:
+      - ./mock/app:/app
