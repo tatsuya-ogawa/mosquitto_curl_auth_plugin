@@ -1,6 +1,6 @@
 # mosquitto_curl_auth_plugin
 * simple auth plugin for mosquitto.
-* when mosquitto basic auth was called, this plugin calls BACKEND_AUTH_URL with post("username=%s&password=%s"). 
+* when mosquitto basic auth was called, this plugin calls MOSQUITTO_PLUGIN_AUTH_BACKEND_URL with post("username=%s&password=%s"). 
 * authentication is success if response status code is 200, otherwise fail.
 
 # getting started
