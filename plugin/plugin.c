@@ -88,7 +88,7 @@ int mosquitto_plugin_init(mosquitto_plugin_id_t *identifier, void **user_data, s
 	UNUSED(opts);
 	UNUSED(opt_count);
 	curl_global_init(CURL_GLOBAL_ALL);
-	const char *_backend_auth_url = getenv("BACKEND_AUTH_URL");
+	const char *_backend_auth_url = getenv("MOSQUITTO_PLUGIN_AUTH_BACKEND_URL");
 	if (_backend_auth_url == NULL)
 	{
 		mosquitto_log_printf(MOSQ_LOG_ERR, "The environment variable:BACKEND_AUTH_URL is not defined.");
