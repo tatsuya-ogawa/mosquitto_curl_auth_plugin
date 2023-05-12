@@ -8,7 +8,7 @@ services:
     volumes:
       - ./mosquitto/config:/mosquitto/config
     environment:
-      MOSQUITTO_PLUGIN_AUTH_BACKEND_URL: http://mock:80/auth
+      MOSQUITTO_PLUGIN_AUTH_BACKEND_URL : http://mock:80/auth
   mock:
     image: mock
     build: 
@@ -16,3 +16,11 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./mock/app:/app
+  test:
+    image: test
+    build:
+      context: test
+      dockerfile: Dockerfile
+    volumes:
+      - ./test/:/opt/test/
+    depends_on: [mosquitto]

@@ -47,7 +47,6 @@ static int auth_callback(int event, void *event_data, void *userdata)
         return -1;
     }
 
-
 	curl = curl_easy_init();
 	int result = 0;
 	std::string read_buffer;
@@ -59,8 +58,8 @@ static int auth_callback(int event, void *event_data, void *userdata)
 		char *password = curl_easy_escape(curl, ed->password, strlen(ed->password));
 		char *ip = curl_easy_escape(curl, ip_address, strlen(ip_address));
 
-		const char *param_format = "username=%s&password=%s&ip=%";
-		int param_size = snprintf(NULL, 0, param_format, username, password);
+		const char *param_format = "username=%s&password=%s&ip=%s";
+		int param_size = snprintf(NULL, 0, param_format, username, password, ip);
 		char *param = (char*)malloc(param_size + 1);
 		snprintf(param, param_size + 1, param_format, username, password);
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, param);
@@ -156,14 +155,14 @@ int mosquitto_plugin_init(mosquitto_plugin_id_t *identifier, void **user_data, s
 	}else if(rc != MOSQ_ERR_SUCCESS){
 		return rc;
 	}
-	rc = mosquitto_callback_register(mosq_pid, MOSQ_EVT_ACL_CHECK, acl_callback, NULL, NULL);
-    if(rc == MOSQ_ERR_ALREADY_EXISTS){
-		return rc;
-	}else if(rc == MOSQ_ERR_NOMEM){
-		return rc;
-	}else if(rc != MOSQ_ERR_SUCCESS){
-		return rc;
-	}
+//	rc = mosquitto_callback_register(mosq_pid, MOSQ_EVT_ACL_CHECK, acl_callback, NULL, NULL);
+//    if(rc == MOSQ_ERR_ALREADY_EXISTS){
+//		return rc;
+//	}else if(rc == MOSQ_ERR_NOMEM){
+//		return rc;
+//	}else if(rc != MOSQ_ERR_SUCCESS){
+//		return rc;
+//	}
     return MOSQ_ERR_SUCCESS;
 }
 
@@ -187,13 +186,13 @@ int mosquitto_plugin_cleanup(void *user_data, struct mosquitto_opt *opts, int op
     }else if(rc != MOSQ_ERR_SUCCESS){
         return rc;
     }
-    rc = mosquitto_callback_unregister(mosq_pid, MOSQ_EVT_ACL_CHECK, acl_callback, NULL);
-    if(rc == MOSQ_ERR_ALREADY_EXISTS){
-        return rc;
-    }else if(rc == MOSQ_ERR_NOMEM){
-        return rc;
-    }else if(rc != MOSQ_ERR_SUCCESS){
-        return rc;
-    }
+//    rc = mosquitto_callback_unregister(mosq_pid, MOSQ_EVT_ACL_CHECK, acl_callback, NULL);
+//    if(rc == MOSQ_ERR_ALREADY_EXISTS){
+//        return rc;
+//    }else if(rc == MOSQ_ERR_NOMEM){
+//        return rc;
+//    }else if(rc != MOSQ_ERR_SUCCESS){
+//        return rc;
+//    }
     return MOSQ_ERR_SUCCESS;
 }

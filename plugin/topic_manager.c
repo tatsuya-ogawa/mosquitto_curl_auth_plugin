@@ -3,7 +3,6 @@
 #include "topic_manager.h"
 using json = nlohmann::json;
 
-
 bool is_topic_valid(const char *pattern, const char *topic) {
     while (*pattern) {
         if (*pattern == '+') {
@@ -36,11 +35,12 @@ void TopicManager::add_topic_to_cache(const std::string &key, const CacheEntry &
     cache[key] = std::move(entry);
 }
 bool TopicManager::add_topic_to_cache(const std::string &key, const std::string &json_string) {
+    static const char* topic_patterns = "topic_patterns";
     try {
         auto json = json::parse(json_string);
-        if (json.contains("topic_patterns") && json["topic_patterns"].is_array()) {
+        if (json.contains(topic_patterns) && json[topic_patterns].is_array()) {
             CacheEntry entry;
-            entry.topic_patterns = json["topic_patterns"].get<std::vector<std::string>>();
+            entry.topic_patterns = json[topic_patterns].get<std::vector<std::string>>();
             entry.timestamp = std::time(nullptr);
             cache[key] = entry;
             return true;
