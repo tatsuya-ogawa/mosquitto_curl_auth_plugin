@@ -11,7 +11,6 @@
 static mosquitto_plugin_id_t *mosq_pid = NULL;
 char *auth_backend_url = NULL;
 TopicManager topic_manager;
-
 int mosquitto_plugin_version(int supported_version_count, const int *supported_versions)
 {
 	int i;
@@ -92,13 +91,35 @@ static int auth_callback(int event, void *event_data, void *userdata)
 	}
 	if (result == 0)
 	{
-	    topic_manager.cache_topic(read_buffer);
-		return MOSQ_ERR_SUCCESS;
+	    if(topic_manager.add_topic_to_cache(ed->username,read_buffer)){
+    		return MOSQ_ERR_SUCCESS;
+	    }else{
+    		return MOSQ_ERR_PLUGIN_DEFER;
+	    }
 	}
 	else
 	{
 		return MOSQ_ERR_PLUGIN_DEFER;
 	}
+}
+int acl_callback(int event, void *event_data, void *userdata){
+    UNUSED(event);
+	UNUSED(userdata);
+    auto ed = (struct mosquitto_evt_acl_check *)event_data;
+    auto username = mosquitto_client_username(ed->client);
+    if(username==NULL){
+        mosquitto_log_printf(MOSQ_LOG_ERR, "username is not specified");
+        return MOSQ_ERR_ACL_DENIED;
+    }
+    if(ed->topic==NULL){
+        mosquitto_log_printf(MOSQ_LOG_ERR, "topic is not specified");
+        return MOSQ_ERR_ACL_DENIED;
+    }
+    if(topic_manager.is_topic_in_cache(username,ed->topic)){
+        return MOSQ_ERR_SUCCESS;
+    }else{
+        return MOSQ_ERR_ACL_DENIED;
+    }
 }
 int mosquitto_plugin_init(mosquitto_plugin_id_t *identifier, void **user_data, struct mosquitto_opt *opts, int opt_count)
 {
@@ -126,7 +147,24 @@ int mosquitto_plugin_init(mosquitto_plugin_id_t *identifier, void **user_data, s
 		}
 	}
 	mosq_pid = identifier;
-	return mosquitto_callback_register(mosq_pid, MOSQ_EVT_BASIC_AUTH, auth_callback, NULL, NULL);
+	int rc;
+	rc = mosquitto_callback_register(mosq_pid, MOSQ_EVT_BASIC_AUTH, auth_callback, NULL, NULL);
+    if(rc == MOSQ_ERR_ALREADY_EXISTS){
+		return rc;
+	}else if(rc == MOSQ_ERR_NOMEM){
+		return rc;
+	}else if(rc != MOSQ_ERR_SUCCESS){
+		return rc;
+	}
+	rc = mosquitto_callback_register(mosq_pid, MOSQ_EVT_ACL_CHECK, acl_callback, NULL, NULL);
+    if(rc == MOSQ_ERR_ALREADY_EXISTS){
+		return rc;
+	}else if(rc == MOSQ_ERR_NOMEM){
+		return rc;
+	}else if(rc != MOSQ_ERR_SUCCESS){
+		return rc;
+	}
+    return MOSQ_ERR_SUCCESS;
 }
 
 int mosquitto_plugin_cleanup(void *user_data, struct mosquitto_opt *opts, int opt_count)
@@ -140,5 +178,22 @@ int mosquitto_plugin_cleanup(void *user_data, struct mosquitto_opt *opts, int op
 		free(auth_backend_url);
 		auth_backend_url = NULL;
 	}
-	return mosquitto_callback_unregister(mosq_pid, MOSQ_EVT_MESSAGE, auth_callback, NULL);
+	int rc;
+	rc = mosquitto_callback_unregister(mosq_pid, MOSQ_EVT_MESSAGE, auth_callback, NULL);
+    if(rc == MOSQ_ERR_ALREADY_EXISTS){
+        return rc;
+    }else if(rc == MOSQ_ERR_NOMEM){
+        return rc;
+    }else if(rc != MOSQ_ERR_SUCCESS){
+        return rc;
+    }
+    rc = mosquitto_callback_unregister(mosq_pid, MOSQ_EVT_ACL_CHECK, acl_callback, NULL);
+    if(rc == MOSQ_ERR_ALREADY_EXISTS){
+        return rc;
+    }else if(rc == MOSQ_ERR_NOMEM){
+        return rc;
+    }else if(rc != MOSQ_ERR_SUCCESS){
+        return rc;
+    }
+    return MOSQ_ERR_SUCCESS;
 }

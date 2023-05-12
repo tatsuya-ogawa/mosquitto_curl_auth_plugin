@@ -31,10 +31,6 @@ bool is_topic_valid(const char *pattern, const char *topic) {
     return *topic == '\0';
 }
 
-void TopicManager::cache_topic(std::string& buffer){
-    json json = json::parse(buffer);
-}
-
 void TopicManager::add_topic_to_cache(const std::string &key, const CacheEntry &entry) {
     std::unique_lock<std::shared_mutex> lock(cache_mutex);
     cache[key] = std::move(entry);
