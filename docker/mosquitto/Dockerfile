@@ -1,5 +1,5 @@
 FROM eclipse-mosquitto:latest as build
-RUN apk add --no-cache alpine-sdk make mosquitto-dev curl-dev
+RUN apk add --no-cache alpine-sdk make mosquitto-dev curl-dev nlohmann-json g++
 COPY ./plugin /opt/build
 WORKDIR /opt/build
 RUN make install

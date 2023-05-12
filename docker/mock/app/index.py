@@ -5,7 +5,8 @@ app = Flask(__name__)
 def auth():
     username = request.form["username"]
     password = request.form["password"]
-    print(f"username:{username},password:{password}",flush=True)
+    ip = request.form["ip"]
+    print(f"username:{username},password:{password},ip:{ip}",flush=True)
     if username == "hoge" and password == "huga":
         return "{}",200
     else:
