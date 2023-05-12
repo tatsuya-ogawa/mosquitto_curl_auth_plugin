@@ -24,6 +24,7 @@ int mosquitto_plugin_version(int supported_version_count, const int *supported_v
 	}
 	return -1;
 }
+
 size_t write_callback(void *contents, size_t size, size_t nmemb, void *userp) {
     ((std::string *)userp)->append((char *)contents, size * nmemb);
     return size * nmemb;
@@ -155,14 +156,14 @@ int mosquitto_plugin_init(mosquitto_plugin_id_t *identifier, void **user_data, s
 	}else if(rc != MOSQ_ERR_SUCCESS){
 		return rc;
 	}
-//	rc = mosquitto_callback_register(mosq_pid, MOSQ_EVT_ACL_CHECK, acl_callback, NULL, NULL);
-//    if(rc == MOSQ_ERR_ALREADY_EXISTS){
-//		return rc;
-//	}else if(rc == MOSQ_ERR_NOMEM){
-//		return rc;
-//	}else if(rc != MOSQ_ERR_SUCCESS){
-//		return rc;
-//	}
+	rc = mosquitto_callback_register(mosq_pid, MOSQ_EVT_ACL_CHECK, acl_callback, NULL, NULL);
+    if(rc == MOSQ_ERR_ALREADY_EXISTS){
+		return rc;
+	}else if(rc == MOSQ_ERR_NOMEM){
+		return rc;
+	}else if(rc != MOSQ_ERR_SUCCESS){
+		return rc;
+	}
     return MOSQ_ERR_SUCCESS;
 }
 
@@ -186,13 +187,13 @@ int mosquitto_plugin_cleanup(void *user_data, struct mosquitto_opt *opts, int op
     }else if(rc != MOSQ_ERR_SUCCESS){
         return rc;
     }
-//    rc = mosquitto_callback_unregister(mosq_pid, MOSQ_EVT_ACL_CHECK, acl_callback, NULL);
-//    if(rc == MOSQ_ERR_ALREADY_EXISTS){
-//        return rc;
-//    }else if(rc == MOSQ_ERR_NOMEM){
-//        return rc;
-//    }else if(rc != MOSQ_ERR_SUCCESS){
-//        return rc;
-//    }
+    rc = mosquitto_callback_unregister(mosq_pid, MOSQ_EVT_ACL_CHECK, acl_callback, NULL);
+    if(rc == MOSQ_ERR_ALREADY_EXISTS){
+        return rc;
+    }else if(rc == MOSQ_ERR_NOMEM){
+        return rc;
+    }else if(rc != MOSQ_ERR_SUCCESS){
+        return rc;
+    }
     return MOSQ_ERR_SUCCESS;
 }
